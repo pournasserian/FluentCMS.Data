@@ -3,8 +3,6 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.0.31903.59
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{827E0CD3-B72D-47B6-A68D-7590B98EB39B}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FluentCMS.Data", "src\FluentCMS.Data\FluentCMS.Data.csproj", "{7D3CEEE0-5942-463B-837B-264D12C567AC}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FluentCMS.Data.SQLite", "src\FluentCMS.Data.SQLite\FluentCMS.Data.SQLite.csproj", "{13F3531F-A9CF-4FB1-B975-40FE386031C5}"
@@ -46,9 +44,5 @@ Global
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
-	EndGlobalSection
-	GlobalSection(NestedProjects) = preSolution
-		{7D3CEEE0-5942-463B-837B-264D12C567AC} = {827E0CD3-B72D-47B6-A68D-7590B98EB39B}
-		{13F3531F-A9CF-4FB1-B975-40FE386031C5} = {827E0CD3-B72D-47B6-A68D-7590B98EB39B}
 	EndGlobalSection
 EndGlobal

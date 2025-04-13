@@ -176,6 +176,127 @@ public class FluentCmsDataOptions
 - Working with specifications
 - Provider configuration
 
+#### 6.2.1 SQLite Provider Configuration
+
+```csharp
+// Register services in your application startup
+public void ConfigureServices(IServiceCollection services)
+{
+    // Option 1: Using direct SQLite extension method
+    services.AddFluentCmsSQLiteData("Data Source=fluentcms.db");
+    
+    // Option 2: Using generic provider configuration
+    services.AddFluentCmsData(options => 
+    {
+        options.UseProvider<SQLiteProvider>();
+        options.ConnectionString = "Data Source=fluentcms.db";
+    });
+}
+
+// Use repositories in your services/controllers
+public class ProductService
+{
+    private readonly IRepository<Product> _productRepository;
+    
+    public ProductService(IRepository<Product> productRepository)
+    {
+        _productRepository = productRepository;
+    }
+    
+    public async Task<Product> GetProductById(Guid id, CancellationToken cancellationToken = default)
+    {
+        return await _productRepository.GetById(id, cancellationToken);
+    }
+    
+    public async Task<IEnumerable<Product>> GetActiveProducts(CancellationToken cancellationToken = default)
+    {
+        var spec = new ProductSpecification()
+            .WhereIsActive()
+            .OrderByNameAscending();
+        
+        return await _productRepository.Find(spec, cancellationToken);
+    }
+    
+    public async Task<Product> CreateProduct(Product product, CancellationToken cancellationToken = default)
+    {
+        return await _productRepository.Add(product, cancellationToken);
+    }
+}
+```
+
+#### 6.2.2 Using Specifications
+
+```csharp
+// Define a specification for a Product entity
+public class ProductSpecification : BaseSpecification<Product>
+{
+    public ProductSpecification()
+    {
+        // Default empty specification
+    }
+    
+    public ProductSpecification(Guid id)
+        : base(p => p.Id == id)
+    {
+    }
+    
+    public ProductSpecification WhereIsActive()
+    {
+        AddCriteria(p => p.IsActive);
+        return this;
+    }
+    
+    public ProductSpecification WhereCategory(Guid categoryId)
+    {
+        AddCriteria(p => p.CategoryId == categoryId);
+        return this;
+    }
+    
+    public ProductSpecification WithCategory()
+    {
+        AddInclude(p => p.Category);
+        return this;
+    }
+    
+    public ProductSpecification OrderByNameAscending()
+    {
+        ApplyOrderBy(p => p.Name);
+        return this;
+    }
+    
+    public ProductSpecification OrderByPriceDescending()
+    {
+        ApplyOrderByDescending(p => p.Price);
+        return this;
+    }
+    
+    public ProductSpecification ApplyPaging(int pageNumber, int pageSize)
+    {
+        ApplyPaging((pageNumber - 1) * pageSize, pageSize);
+        return this;
+    }
+}
+
+// Using the specification with repository
+public async Task<PagedResult<Product>> GetProductsByCategoryPaged(
+    Guid categoryId, 
+    int pageNumber, 
+    int pageSize, 
+    CancellationToken cancellationToken = default)
+{
+    var spec = new ProductSpecification()
+        .WhereCategory(categoryId)
+        .WithCategory()
+        .OrderByNameAscending()
+        .ApplyPaging(pageNumber, pageSize);
+    
+    var items = await _repository.Find(spec, cancellationToken);
+    var totalCount = await _repository.Count(new ProductSpecification().WhereCategory(categoryId), cancellationToken);
+    
+    return new PagedResult<Product>(items, totalCount, pageNumber, pageSize);
+}
+```
+
 ### 6.3 Tutorials
 - Getting started guide
 - Migration from direct database access
